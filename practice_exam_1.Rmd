@@ -1,0 +1,113 @@
+---
+title: "Practice Exam 1"
+author: "Tyler Simko"
+date: "9/22/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+```
+
+----------------------------------------------------------------------------------------
+ Name                          Description
+ ----------------------------- ---------------------------------------------------------
+ `name`                        Name.
+ 
+ `state`                       State.
+ 
+ `region`                      US region.
+ 
+ `campuses`                    Number of campuses.
+ 
+ `id`                          Institution ID - shared between campuses.
+ 
+ `id_long`                     Longer ID - unique to every row.
+ 
+ `class`                       College-type indicator.
+ 
+ `locale`                      City, town, rural, etc.
+ 
+ `ug_enrollment`               Number of enrolled undergraduates 2020.
+ 
+ `main_campus`                 1 if main campus, 0 otherwise.
+ 
+ `hbcu`                        Historically Black College / University.
+ 
+ `women_only`                  Women-only college / university.
+ 
+ `religious_affiliation`       1 if religiously affiliated, NA otherwise.
+
+ `admission_rate`              Overall admission rate. 
+ 
+ `social_sciences`             Percentage of all degrees in social sciences.
+ 
+ `physical_sciences`           Percentage of all degrees in physical sciences.
+ 
+ `ethnic_gender_sciences`      Percentage of all degrees in ethnic, gender, group, or cultural studies.
+ 
+ `comp_sci`                    Percentage of all degrees in computer science.
+ 
+ `avg_faculty_salary`          Average monthly faculty salary.
+ 
+ `completion_rate`             Average 4-year completion rate.
+ 
+ `pell_grant`                  Percentage of undergraduates on a Pell Grant.
+ 
+ `first_gen_completion_4`      Percentage of first-gen students who complete degree in 4 years.
+-------------------------------------------------------------------------------
+
+## Question 1
+
+I put a .csv file on Canvas under Files --> Practice Exam 1 called `college_scorecard.csv`. Download this file, place it in a new folder called `raw_data`, and read it into a `tibble` called `colleges`. Make sure to set the `col_types` argument so that no message appears when you read the data.
+
+Then, make a new object called `q1` which contains only the `name` and `pell_grant` columns for the 10 New Jersey colleges / universities with the largest proportion of undergraduates receiving a Pell Grants.
+
+## Question 2
+
+Use that new object to create a dataset with one row for each `region` called `q1` which contains two new columns:
+
+1. `religious_num`  = the number of colleges and universities with a religious affiliation in each region of the US
+2. `religious_prop` = the **proportion** of all colleges and universities in that region that have a religious affiliation.
+
+Save all of this into a new dataset called `regional_religion`.
+
+## Question 3
+
+Use the `regional_religion` dataset to replicate the following plot. 
+
+The theme is `them_bw()` and the color of the bars is "#69A297". You'll also need to remove the "US Service Schools" region. Use the `breaks` and `labels` argument in a scale function for the y-axis to change the default numeric labels to the nicer character ones below.
+
+## Question 4
+
+You may have noticed that the `id` column is equal to the first six characters of the `id_long` column. Create a new column in `colleges` called `id_replicate` that recreates `id_long` by subsetting the first six characters from `id`. Finally, select only the columns `id`, `id_replicate`, and `id_long` and verify that your work is correct. Once you're done, save this all into an object called `q4`. 
+
+## Question 4
+
+Load the `fec16` library from Problem Set 2. Create a new object called `avg_results` that calculates the average `general_percent` for Democratic candidates in every state (you will need to set `na.rm = TRUE` in your `mean` call).
+
+Next, create a new object called `avg_pell` that calculates the average percentage of undergraduates enrolled in each state receiving Pell Grants. Remove the "GU" and "VI" states.
+
+Finally, join these two objects into an object called `q4` so that rows are maintained only if they appear in both datasets.
+
+## Question 5
+
+Create an object called `avg_first` that:
+
+1. Keeps only observations in `colleges` that are not in state "GU" (Guam), not in state "VI" (Virgin Islands), and have non-NA values in `first_gen_completion_4` (remember `!is.na()`).
+2. Creates a summarized dataset that finds the average of the `first_gen_completion_4` column within each `state` and `locale`.
+
+Store this 213 rows by 3 columns dataset in `avg_first`. 
+
+## Question 6
+
+Look at the `avg_first` object in your console. One row per state and two columns. Use `pivot_wider` to pivot this dataset into wide format so that there is one row for each `locale` with one column per `state`. You will need to set the `names_from` and `values_from` arguments. Save this into an object called `wider`.
+
+Then using the `wider` object, use `pivot_longer` to recreate `avg_first` by pivoting it back into long form. You need to set three arguments: `cols` lists all columns you'd like to pivot back (you can use the name of the first and the last column you want to pivot with a colon : in between to select them all), `names_to` is a character with the name of the new column you want to put the pivoted column names into, and `values_to` is a character with the name of the new column you want to hold the values. 
+For an extra challenge afterwards, you'll notice that `longer` isn't exactly the same length as `avg_first`. Why not? What does `longer` have that `avg_first` doesn't? Read the docs for `pivot_longer` and try to find an argument to fix that. 
+
+
+
+
