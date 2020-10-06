@@ -496,16 +496,16 @@ summary {
 </div>
 <div id="question-4" class="section level2">
 <h2>Question 4</h2>
-<p>You may have noticed that the <code>id</code> column is equal to the first six characters of the <code>id_long</code> column. Create a new column in <code>colleges</code> called <code>id_replicate</code> that recreates <code>id_long</code> by subsetting the first six characters from <code>id</code>. Finally, select only the columns <code>id</code>, <code>id_replicate</code>, and <code>id_long</code> and verify that your work is correct. Once you’re done, save this all into an object called <code>q4</code>.</p>
-</div>
-<div id="question-4-1" class="section level2">
-<h2>Question 4</h2>
-<p>Load the <code>fec16</code> library from Problem Set 2. Create a new object called <code>avg_results</code> that calculates the average <code>general_percent</code> for Democratic candidates in every state (you will need to set <code>na.rm = TRUE</code> in your <code>mean</code> call).</p>
-<p>Next, create a new object called <code>avg_pell</code> that calculates the average percentage of undergraduates enrolled in each state receiving Pell Grants. Remove the “GU” and “VI” states.</p>
-<p>Finally, join these two objects into an object called <code>q4</code> so that rows are maintained only if they appear in both datasets.</p>
+<p>You may have noticed that the <code>id</code> column is equal to the first six characters of the <code>id_long</code> column. Create a new column in <code>colleges</code> called <code>id_replicate</code> that recreates <code>id_long</code> by subsetting the first six characters from <code>id</code>. Finally, select only the columns <code>id</code>, <code>id_replicate</code>, and <code>id_long</code> and verify that your work is correct. Once you’re done, save this all into an object called <code>q4</code>. There are many examples of string functions in Section 2.2 of the book.</p>
 </div>
 <div id="question-5" class="section level2">
 <h2>Question 5</h2>
+<p>Load the <code>fec16</code> library from Problem Set 2. Create a new object called <code>avg_results</code> that calculates the average <code>general_percent</code> for Democratic candidates in every state (you will need to set <code>na.rm = TRUE</code> in your <code>mean</code> call) using the <code>results_house</code> dataset.</p>
+<p>Next, create a new object called <code>avg_pell</code> that calculates the average percentage of undergraduates enrolled in each state receiving Pell Grants. Remove the “GU” and “VI” states.</p>
+<p>Finally, join these two objects into an object called <code>q5</code> so that rows are maintained only if they appear in both datasets.</p>
+</div>
+<div id="question-6" class="section level2">
+<h2>Question 6</h2>
 <p>Create an object called <code>avg_first</code> that:</p>
 <ol style="list-style-type: decimal">
 <li>Keeps only observations in <code>colleges</code> that are not in state “GU” (Guam), not in state “VI” (Virgin Islands), and have non-NA values in <code>first_gen_completion_4</code> (remember <code>!is.na()</code>).</li>
@@ -513,14 +513,10 @@ summary {
 </ol>
 <p>Store this 213 rows by 3 columns dataset in <code>avg_first</code>.</p>
 </div>
-<div id="question-6" class="section level2">
-<h2>Question 6</h2>
-<p>Look at the <code>avg_first</code> object in your console. One row per state and two columns. Use <code>pivot_wider</code> to pivot this dataset into wide format so that there is one row for each <code>locale</code> with one column per <code>state</code>. You will need to set the <code>names_from</code> and <code>values_from</code> arguments. Save this into an object called <code>wider</code>.</p>
-<p>Then using the <code>wider</code> object, use <code>pivot_longer</code> to recreate <code>avg_first</code> by pivoting it back into long form. You need to set three arguments: <code>cols</code> lists all columns you’d like to pivot back (you can use the name of the first and the last column you want to pivot with a colon : in between to select them all), <code>names_to</code> is a character with the name of the new column you want to put the pivoted column names into, and <code>values_to</code> is a character with the name of the new column you want to hold the values. For an extra challenge afterwards, you’ll notice that <code>longer</code> isn’t exactly the same length as <code>avg_first</code>. Why not? What does <code>longer</code> have that <code>avg_first</code> doesn’t? Read the docs for <code>pivot_longer</code> and try to find an argument to fix that.</p>
-</div>
 <div id="question-7" class="section level2">
 <h2>Question 7</h2>
-<p>Design a plot that shows something interesting about this data. Your plot <strong>must</strong> be accompanied by a short paragraph describing your plot and why you found it interesting. You are welcome to use any of the columns described above. Both your plot and your paragraph must appear in the ultimate PDF.</p>
+<p>Look at the <code>avg_first</code> object in your console. One row per state and two columns. Use <code>pivot_wider</code> to pivot this dataset into wide format so that there is one row for each <code>locale</code> with one column per <code>state</code>. You will need to set the <code>names_from</code> and <code>values_from</code> arguments. Save this into an object called <code>wider</code>.</p>
+<p>Then using the <code>wider</code> object, use <code>pivot_longer</code> to recreate <code>avg_first</code> by pivoting it back into long form. Call this dataset <code>longer</code>. You need to set three arguments: <code>cols</code> lists all columns you’d like to pivot back (you can use the name of the first and the last column you want to pivot with a colon : in between to select them all), <code>names_to</code> is a character with the name of the new column you want to put the pivoted column names into, and <code>values_to</code> is a character with the name of the new column you want to hold the values. For an extra challenge afterwards, you’ll notice that <code>longer</code> isn’t exactly the same length as <code>avg_first</code>. Why not? What does <code>longer</code> have that <code>avg_first</code> doesn’t? Read the docs for <code>pivot_longer</code> and try to find an argument to fix that.</p>
 </div>
 
 
