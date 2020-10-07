@@ -1,0 +1,259 @@
+---
+title: "Practice Exam 1: Solutions"
+author: "Tyler Simko"
+date: "9/22/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+```
+
+----------------------------------------------------------------------------------------
+ Name                          Description
+ ----------------------------- ---------------------------------------------------------
+ `name`                        Name.
+ 
+ `state`                       State.
+ 
+ `region`                      US region.
+ 
+ `campuses`                    Number of campuses.
+ 
+ `id`                          Institution ID - shared between campuses.
+ 
+ `id_long`                     Longer ID - unique to every row.
+ 
+ `class`                       College-type indicator.
+ 
+ `locale`                      City, town, rural, etc.
+ 
+ `ug_enrollment`               Number of enrolled undergraduates 2020.
+ 
+ `main_campus`                 1 if main campus, 0 otherwise.
+ 
+ `hbcu`                        Historically Black College / University.
+ 
+ `women_only`                  Women-only college / university.
+ 
+ `religious_affiliation`       1 if religiously affiliated, NA otherwise.
+
+ `admission_rate`              Overall admission rate. 
+ 
+ `social_sciences`             Percentage of all degrees in social sciences.
+ 
+ `physical_sciences`           Percentage of all degrees in physical sciences.
+ 
+ `ethnic_gender_sciences`      Percentage of all degrees in ethnic, gender, group, or cultural studies.
+ 
+ `comp_sci`                    Percentage of all degrees in computer science.
+ 
+ `avg_faculty_salary`          Average monthly faculty salary.
+ 
+ `completion_rate`             Average 4-year completion rate.
+ 
+ `pell_grant`                  Percentage of undergraduates on a Pell Grant.
+ 
+ `first_gen_completion_4`      Percentage of first-gen students who complete degree in 4 years.
+-------------------------------------------------------------------------------
+
+**Note**: these solutions print out the answers to the .html / .pdf file so that you can review them whenever you want. On a real exam, your solutions must look like they do on a problem set - remove all warnings, messages, indivdual code chunks, and print out a final chunk with all of your code at the very end.
+
+## Question 1
+
+Make a new .Rmd file called `exam_1.Rmd`. I put a .csv file on Canvas under Files --> Practice Exam 1 called `college_scorecard.csv`. Download this file, place it in a new folder called `raw_data`, and read it into a `tibble` called `colleges`. Make sure to set the `col_types` argument so that no message appears when you read the data.
+
+Then, make a new object called `q1` which contains only the `name` and `pell_grant` columns for the 10 New Jersey colleges / universities with the largest proportion of undergraduates receiving Pell Grants.
+
+```{r}
+
+# One easy way to remove the warning is by using read_csv to read in 
+# a file with no col_types argument at first. Then, you will notice
+# that R prints a message to the console. You can copy that message
+# and paste it into the read_csv function to remove the warning.
+
+colleges <- read_csv(
+  "raw_data/college_scorecard.csv",
+  col_types = cols(
+    .default = col_double(),
+    name = col_character(),
+    state = col_character(),
+    region = col_character(),
+    id_long = col_character(),
+    id = col_character(),
+    locale = col_character(),
+    ug_enrollment = col_character(),
+    completion_rate = col_character()
+  )
+)
+
+q1 <- colleges %>% 
+  filter(state == "NJ") %>%
+  
+  # Don't forget that desc() is its own function!
+  
+  arrange(desc(pell_grant)) %>%
+  select(name, pell_grant) %>%
+  slice(1:10)
+
+```
+
+**Lesson**: to find the "most" or "least" or something, a good approach is to arrange and then slice.
+
+## Question 2
+
+Use that new `colleges` object to create a dataset with one row for each `region` called `regional_religion` which contains two new columns:
+
+1. `religious_num`  = the number of colleges and universities with a religious affiliation in each region of the US
+2. `religious_prop` = the **proportion** of all colleges and universities in that region that have a religious affiliation.
+
+Save all of this into a new dataset called `regional_religion`.
+
+```{r}
+
+regional_religion <- colleges %>% 
+  group_by(region) %>%
+  
+  # Using summarise() after a group_by will reduce the rows in each 
+  # group into a single value. If you use summarise without group_by,
+  # it will summarise all of the rows in the entire dataset.
+  
+  summarise(religious = sum(religious_affiliation, na.rm = T),
+            religious_prop = religious / n(),
+            .groups = "drop")
+
+```
+
+**Lesson**: group_by combined with summarise makes a new, simplified dataset where each row combines all the rows in your `group` variable. The key here is to remember that you need to **reduce** multiple values into one value per row in your summarised dataset. Functions like `mean`, `sum`, `max`, `min`, etc. are all ways to do this. 
+
+## Question 3
+
+Use the `regional_religion` dataset to replicate the following plot. 
+
+The theme is `theme_bw()` and the color of the bars is "#69A297". You'll also need to remove the "US Service Schools" region. Use the `breaks` and `labels` argument in a scale function for the y-axis to change the default numeric labels to the nicer character ones below.
+
+```{r}
+regional_religion %>%  
+  filter(region != "US Service Schools") %>% 
+  ggplot(aes(x = fct_reorder(region, religious_prop), y = religious_prop)) + 
+    geom_bar(stat="identity", fill = "#69A297") + 
+    coord_flip() + 
+    theme_bw() + 
+    labs(title = "Proportion of Colleges in Each \n US Region with a Religious Affiliation",
+         x = "Region",
+         y = "Religious Proportion") + 
+  
+  # Scale functions are difficult! The documentation is your friend. The key
+  # is to think about which aesthetic you want to change: x, y, color, fill, etc.
+  # Then, you can find the correct scale function based on that aesthetic:
+  # scale_y_continuous (for a y aesthetic with continuous values), 
+  # scale_color_manual (for a color aesthetic when you want to change values manually), etc.
+  
+    scale_y_continuous(breaks = c(0, 0.1, 0.2, 0.3, 0.4, 0.5),
+                      labels = c("0%", "10%", "20%", "30%", "40%", "50%"))
+```
+
+**Lesson**: all scale functions work broadly similarly, but the hardest part is figuring out which scale function to use. You can type `scale_` followed by the aesthetic you want - x, y, fill, color, size, etc. - and press tab to see all of your options. This is hard, it's okay to guess! Look at the documentation, especially the examples.
+
+## Question 4
+
+You may have noticed that the `id` column is equal to the first four characters of the `id_long` column. Create a new column in `colleges` called `id_replicate` that recreates `id_long` by subsetting the first six characters from `id`. Finally, select only the columns `id`, `id_replicate`, and `id_long` and verify that your work is correct. Once you're done, save this all into an object called `q4`. 
+
+```{r}
+q4 <- colleges %>%
+  
+  # Section 2.2 has a lot of functions you can use on strings. 
+  # Check them out!
+  
+  mutate(id_replicate = str_sub(id, 1, 4)) %>%
+  select(id, id_replicate, id_long)
+```
+
+**Lesson**: working with characters is important! [Section 2.2 of the book](https://davidkane9.github.io/PPBDS/wrangling.html). There are a few different functions that all have different purposes - for example, `str_sub` takes a subset of a string. Lots of them are listed in the book!
+
+## Question 5
+
+Load the `fec16` library from Problem Set 2. Create a new object called `avg_results` that calculates the average `general_percent` for Democratic candidates in every state (you will need to set `na.rm = TRUE` in your `mean` call) using the `results_house` dataset.
+
+Next, create a new object called `avg_pell` that calculates the average percentage of undergraduates enrolled in each state receiving Pell Grants. Remove the "GU" and "VI" states.
+
+Finally, join these two objects into an object called `q5` so that rows are maintained only if they appear in both datasets.
+
+```{r}
+library(fec16)
+
+avg_results <- results_house %>%
+  filter(party == "D") %>%
+  group_by(state) %>%
+  summarise(avg_dem_result = mean(general_percent, na.rm = TRUE), .groups = "drop")
+
+avg_pell <- colleges %>%
+  filter(state != "GU" & state != "VI") %>%
+  group_by(state) %>%
+  summarise(avg_pell = mean(pell_grant, na.rm = T), .groups = "drop")
+
+q5 <- inner_join(avg_results, avg_pell, by = "state") 
+
+# in case you wanted to plot it!
+  # ggplot(aes(x = avg_dem_result, y = avg_pell)) +
+  #   geom_point(color = "dodgerblue") +
+  #   theme_bw()
+
+```
+
+**Lesson**: don't forget that there are different kinds of joins. They are all described in Section 2.6.3 of the book! https://davidkane9.github.io/PPBDS/wrangling.html
+
+## Question 6
+
+Create an object called `avg_first` that:
+
+1. Keeps only observations in `colleges` that are not in state "GU" (Guam), not in state "VI" (Virgin Islands), and have non-NA values in `first_gen_completion_4` (remember `!is.na()`).
+2. Creates a summarized dataset that finds the average of the `first_gen_completion_4` column within each `state` and `locale`.
+
+Store this 213 rows by 3 columns dataset in `avg_first`. 
+
+```{r}
+
+avg_first <- colleges %>%
+  filter(state != "GU" & state != "VI" & !is.na(first_gen_completion_4)) %>%
+  group_by(state, locale) %>%
+  summarise(firstgen = mean(first_gen_completion_4, na.rm = T),
+            .groups = "drop")
+
+```
+
+**Lesson**: logical conditions can get pretty complicated. Here, we are using a function `is.na()` to evaluate whether each row in a particular column is equal to NA. But then we use `!` to reverse it! So, this is really doing the work of finding the values that are **not** NA and returning TRUE for those. 
+
+## Question 7
+
+Look at the `avg_first` object in your console. IT has one row per state and three columns. Use `pivot_wider` to pivot this dataset into wide format so that there is one row for each `locale` with one column per `state`. You will need to set the `names_from` and `values_from` arguments. Save this into an object called `wider`.
+
+Then using the `wider` object, use `pivot_longer` to recreate `avg_first` by pivoting it back into long form. Call this dataset `longer`. You need to set three arguments: `cols` lists all columns you'd like to pivot back (you can use the name of the first and the last column you want to pivot with a colon : in between to select them all), `names_to` is a character with the name of the new column you want to put the pivoted column names into, and `values_to` is a character with the name of the new column you want to hold the values.
+
+For an extra challenge afterwards, you'll notice that `longer` isn't exactly the same length as `avg_first`. Why not? What does `longer` have that `avg_first` doesn't? Read the docs for `pivot_longer` and try to find an argument to fix that. 
+
+```{r}
+
+wider <- avg_first %>%
+  pivot_wider(names_from = state,
+              values_from = firstgen)
+
+longer <- wider %>%
+  
+  # x:y is a way to say "all of the columns between x and y." Here, 
+  # the first column is AK and the last is WY, so this syntax takes 
+  # all of those columns.
+  
+  pivot_longer(cols = AK:WY,
+               names_to = "state",
+               values_to = "firstgen", 
+               values_drop_na = TRUE) %>%
+  arrange(state)
+
+```
+
+**Lesson**: pivots are easiest when you visualize them. This is a full example that you can walk through at your leisure. Run each piece individually by evaluating each object alone in the console. Look at how the structure of the dataset changes. 
+
+
